@@ -34,17 +34,33 @@ public class getCustomer extends HttpServlet {
 		doPost(request, response);
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//print header
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
+		
 		EntityManager em = DBUtil.getEmFactory().createEntityManager();
+		
+		Long customerID;
+		if (request.getParameter("cid").isEmpty())
+			customerID = 1L;
+		else
+			customerID = Long.parseLong(request.getParameter("cid"));
+		
+		
 		try
 		{
-			DemoCustomer cust = em.find(DemoCustomer.class, (long)8);
-			out.println(cust.getCustFirstName());
+			
+			DemoCustomer cust = em.find(DemoCustomer.class, customerID);
+			
+			//print customerID, name, and credit limit
+			//customer name should be clickable to call the servlet to look up the customer details by id
+			
+			String link = "<a href=\"getCustomerDetails?cid="+ cust.getCustomerId() + "\">" + cust.getCustFirstName() + " " + cust.getCustLastName() + "</a>";
+			out.print(link);
+			out.println(cust.getCreditLimit());
+		} catch (Exception e) {
+			out.println(e.getMessage());
 		} finally {
 			out.close();
 		}
